@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# post-receive                                       Copyright 2018 cPanel, Inc.
+#                                                           All rights reserved.
+# copyright@cpanel.net                                         http://cpanel.net
+# This code is subject to the cPanel license. Unauthorized copying is prohibited
+
+branch=$(/usr/local/cpanel/3rdparty/bin/git branch | awk '$1 == "*"{print $2}')
+while read oldrev newrev ref
+do
+  if [ "x$ref" == "xrefs/heads/$branch" ]
+  then
+    echo "Recieved update on checked-out branch, queueing deployment."
+    (cd .. ; /usr/bin/uapi VersionControlDeployment create repository_root=$PWD)
+  fi
+done < /dev/stdin
